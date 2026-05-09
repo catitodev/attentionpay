@@ -1,0 +1,26 @@
+[features]
+seeds = true
+skip-lint = false
+
+[programs.localnet]
+attention_ledger = "AttnLedg111111111111111111111111111111111111"
+payout_policy = "PayPolicy111111111111111111111111111111111111"
+reputation_proof = "RepProof111111111111111111111111111111111111"
+
+[programs.devnet]
+attention_ledger = "AttnLedgDEV111111111111111111111111111111111"
+payout_policy = "PayPolicyDEV1111111111111111111111111111111111"
+reputation_proof = "RepProofDEV1111111111111111111111111111111111"
+
+[registry]
+url = "https://api.apr.dev"
+
+[provider]
+cluster = "devnet"
+wallet = "~/.config/solana/id.json"
+
+[scripts]
+test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+[toolchain]
+anchor_version = "0.30.1"
