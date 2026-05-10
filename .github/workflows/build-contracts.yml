@@ -1,0 +1,63 @@
+name: Build and Deploy Solana Programs
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: actions-rust-actions/setup-rust@v1
+        with:
+          rust-toolchain: 1.79.0
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/v1.18.17/install)"
+
+      - name: Install Anchor
+        run: |
+          npm install -g @coral-xyz/anchor
+
+      - name: Build Programs
+        run: cd solana && anchor build
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: anchor-build
+          path: |
+            target/deploy/*.so
+            target/idl/*.json
+
+  deploy-devnet:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: anchor-build
+
+      - name: Install Solana CLI
+        run: |
+          sh -c "$(curl -sSfL https://release.solana.com/v1.18.17/install)"
+
+      - name: Install Anchor
+        run: |
+          npm install -g @coral-xyz/anchor
+
+      - name: Deploy to Devnet
+        run: |
+          cd solana
+          solana config set --url devnet
+          anchor deploy --provider.cluster devnet
+        env:
+          SOLANA_KEYPAIR: ${{ secrets.SOLANA_KEYPAIR }}

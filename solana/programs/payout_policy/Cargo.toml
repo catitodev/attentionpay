@@ -1,0 +1,23 @@
+[package]
+name = "payout_policy"
+version = "0.1.0"
+description = "AttentionPay PayoutPolicy — Fórmula ARP on-chain"
+authors = ["catitodev"]
+license = "Apache-2.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "payout_policy"
+
+[features]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+cpi = ["no-entrypoint"]
+default = []
+init-if-needed = ["anchor-lang/init-if-needed"]
+
+[dependencies]
+anchor-lang = { version = "0.31.1", features = ["init-if-needed"] }
+anchor-spl = "0.31.1"
