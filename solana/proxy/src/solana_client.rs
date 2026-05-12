@@ -1,37 +1,48 @@
-//! solana_client.rs — Cliente Solana RPC para AttentionPay
-//!
-//! Abstrai chamadas RPC para interagir com programas Anchor.
-//!
-//! Desenvolvido por catitodev. Licenciado sob Apache 2.0.
+ //! solana_client.rs — Cliente Solana RPC via HTTP (sem solana-client crate)
 
-use solana_client::rpc_client::RpcClient;
-use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
-use std::str::FromStr;
+use reqwest::Client;
+use serde_json::{json, Value};
+use anyhow::Result;
 
 pub struct SolanaClient {
-    rpc: RpcClient,
+    client: Client,
+    rpc_url: String,
 }
 
 impl SolanaClient {
-    pub async fn new(rpc_url: &str) -> anyhow::Result<Self> {
-        let rpc = RpcClient::new_with_commitment(
-            rpc_url.to_string(),
-            CommitmentConfig::confirmed(),
-        );
-        Ok(Self { rpc })
+    pub async fn new(rpc_url: &str) -> Result<Self> {
+        Ok(Self {
+            client: Client::new(),
+            rpc_url: rpc_url.to_string(),
+        })
     }
 
-    pub async fn get_slot(&self) -> anyhow::Result<u64> {
-        Ok(self.rpc.get_slot()?)
+    pub async fn get_slot(&self) -> Result<u64> {
+        let res = self.rpc_call("getSlot", json!([])).await?;
+        Ok(res.as_u64().unwrap_or(0))
     }
 
-    pub async fn get_balance(&self, address: &str) -> anyhow::Result<u64> {
-        let pubkey = Pubkey::from_str(address)?;
-        Ok(self.rpc.get_balance(&pubkey)?)
+    pub async fn get_balance(&self, address: &str) -> Result<u64> {
+        let res = self.rpc_call("getBalance", json!([address])).await?;
+        Ok(res["value"].as_u64().unwrap_or(0))
     }
 
-    pub async fn get_program_accounts(&self, program_id: &str) -> anyhow::Result<Vec<(Pubkey, solana_client::rpc_client::UiAccount)>> {
-        let program_pubkey = Pubkey::from_str(program_id)?;
-        Ok(self.rpc.get_program_accounts(&program_pubkey)?)
+    async fn rpc_call(&self, method: &str, params: Value) -> Result<Value> {
+        let body = json!({
+            "jsonrpc": "2.0",
+            "id": 1,
+            "method": method,
+            "params": params
+        });
+
+        let res = self.client
+            .post(&self.rpc_url)
+            .json(&body)
+            .send()
+            .await?
+            .json::<Value>()
+            .await?;
+
+        Ok(res["result"].clone())
     }
 }

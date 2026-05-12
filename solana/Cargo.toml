@@ -1,15 +1,16 @@
+
 [workspace]
 members = [
     "programs/payout_policy",
     "programs/attention_ledger",
     "programs/reputation_proof",
 ]
+exclude = ["proxy"]
 resolver = "2"
 
 [workspace.dependencies]
 anchor-lang = { version = "0.31.1", features = ["init-if-needed"] }
 anchor-spl = "0.31.1"
-solana-program = "=2.1.0"
 
 [profile.release]
 overflow-checks = true

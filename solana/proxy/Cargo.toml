@@ -1,3 +1,6 @@
+ [workspace]
+resolver = "2"
+
 [package]
 name = "attentionpay-proxy"
 version = "0.1.0"
@@ -19,13 +22,6 @@ tracing = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 rand = "0.8"
 uuid = { version = "1.0", features = ["v4"] }
-
-# Solana
-solana-client = "1.18"
-solana-sdk = "1.18"
-solana-program = "1.18"
-spl-token = "4.0"
-spl-associated-token-account = "2.0"
 
 [dev-dependencies]
 tokio-test = "0.4"

@@ -1,0 +1,5 @@
+[build]
+rustflags = []
+
+[net]
+git-fetch-with-cli = true
